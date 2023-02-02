@@ -60,13 +60,30 @@ async function functionCall(
   gas,
   deposit
 ) {
+  console.log(
+    "functionCall",
+    contractName,
+    methodName,
+    JSON.stringify(args, null, 2),
+    gas,
+    deposit
+  );
+  near.logger.info("functionCall", {
+    contractName,
+    methodName,
+    args,
+    gas,
+    deposit,
+  });
+
   const txResult = await near.account.functionCall({
     contractId: contractName,
     methodName,
     args,
     gas: gas ?? TGas.mul(30).toFixed(0),
-    deposit: deposit ?? "0",
+    attachedDeposit: deposit ?? "0",
   });
+  near.logger.info("functionCallResult", { txResult });
   if (
     typeof txResult.status === "object" &&
     typeof txResult.status.SuccessValue === "string"
@@ -134,8 +151,8 @@ async function viewCall(
   );
 }
 
-async function initNear() {
-  const _near = {};
+async function initNear(logger) {
+  const _near = { logger };
   _near.accountId = process.env.NEAR_ACCOUNT_ID;
 
   const keyStore = new nearAPI.keyStores.InMemoryKeyStore();

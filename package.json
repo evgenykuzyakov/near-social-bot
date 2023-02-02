@@ -1,16 +1,17 @@
 {
   "name": "near-social-bot",
   "version": "0.0.1",
-  "main": "bot.js",
+  "main": "index.js",
   "license": "UNLICENSED",
   "dependencies": {
     "axios": "^0.26.1",
     "big.js": "^6.2.1",
-    "openai": "^3.1.0"
+    "openai": "^3.1.0",
+    "winston": "^3.8.2"
   },
   "scripts": {
-    "start": "node bot",
-    "dev": "nodemon -r dotenv/config bot"
+    "start": "node index",
+    "dev": "nodemon -r dotenv/config index"
   },
   "devDependencies": {
     "dotenv": "^8.2.0",
