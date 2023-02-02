@@ -156,6 +156,9 @@ class Bot {
       }
     } else if (value.type === "like") {
       // ignore
+    } else if (value.type === "poke") {
+      // poke back
+      await this.social.poke(accountId);
     } else if (value.type === "comment") {
       const item = value.item;
       // Extract context
@@ -208,7 +211,11 @@ class Bot {
     await this.maybePost();
     await this.fetchNotifications();
     await this.processNotifications();
+
     // this.state.todoNotifications.shift();
+    // this.logger.info("test", {
+    //   notification: this.state.todoNotifications[0],
+    // });
     // await this.processNotification(this.state.todoNotifications[0]);
   }
 }

@@ -171,6 +171,26 @@ class Social {
     });
   }
 
+  async poke(accountId) {
+    this.logger.info("poke", { accountId });
+    return this.set({
+      index: {
+        graph: JSON.stringify({
+          key: "poke",
+          value: {
+            accountId: accountId,
+          },
+        }),
+        notify: JSON.stringify({
+          key: accountId,
+          value: {
+            type: "poke",
+          },
+        }),
+      },
+    });
+  }
+
   async getPost(item, type = "main") {
     try {
       if (!item || item?.type !== "social") {
