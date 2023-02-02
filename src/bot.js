@@ -49,17 +49,28 @@ class Bot {
   }
 
   async fetchNotifications() {
-    const from =
+    let from =
       this.state.notifications.length > 0
         ? this.state.notifications[this.state.notifications.length - 1]
             .blockHeight + 1
         : 0;
+    const lastCommentBlockHeight = await this.social.keysInner(
+      `${this.near.accountId}/post/comment`,
+      "optimistic",
+      {
+        return_type: "BlockHeight",
+      }
+    );
+    if (lastCommentBlockHeight) {
+      from = Math.max(from, lastCommentBlockHeight - 60);
+    }
+
     const newNotifications = await this.social.index(
       "notify",
       this.near.accountId,
       {
         order: "asc",
-        limit: 100,
+        limit: 10000,
         from,
       }
     );

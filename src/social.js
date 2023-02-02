@@ -1,5 +1,19 @@
 const { NearConfig } = require("./near");
 
+const innerValue = (key, data) => {
+  if (data) {
+    const parts = key.split("/");
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      if (part === "*" || part === "**") {
+        break;
+      }
+      data = data?.[part];
+    }
+  }
+  return data;
+};
+
 class Social {
   constructor(logger, near) {
     this.logger = logger;
@@ -110,19 +124,24 @@ class Social {
     );
   }
 
+  async keys(keys, blockId, options) {
+    return this.near.viewCall(
+      NearConfig.contractName,
+      "keys",
+      {
+        keys: Array.isArray(keys) ? keys : [keys],
+        options,
+      },
+      blockId
+    );
+  }
+
+  async keysInner(key, blockId, options) {
+    return innerValue(key, await this.keys(key, blockId, options));
+  }
+
   async getInner(key, blockId) {
-    let data = await this.get(key, blockId);
-    if (data) {
-      const parts = key.split("/");
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
-        if (part === "*" || part === "**") {
-          break;
-        }
-        data = data?.[part];
-      }
-    }
-    return data;
+    return innerValue(key, await this.get(key, blockId));
   }
 
   async isFollowing(accountId, targetId) {
