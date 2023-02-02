@@ -8,7 +8,7 @@ const StorageCostPerByte = Big(10).pow(19);
 const MainnetContract = "social.near";
 const MainNearConfig = {
   networkId: "mainnet",
-  nodeUrl: "https://rpc.mainnet.near.org",
+  nodeUrl: process.env.NEAR_NODE_URL || "https://rpc.mainnet.near.org",
   archivalNodeUrl: "https://rpc.mainnet.internal.near.org",
   contractName: MainnetContract,
   walletUrl: "https://wallet.near.org",
