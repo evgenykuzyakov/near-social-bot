@@ -85,6 +85,17 @@ class Bot {
   }
 
   async reply({ notification, item, post, blockHeight, accountId }) {
+    const lastReplies = (this.state.accountReplies[accountId] =
+      this.state.accountReplies[accountId] || []);
+    const lastThreeReplies = lastReplies.slice(-3);
+    if (
+      lastThreeReplies.length === 3 &&
+      lastThreeReplies[0].time > Date.now() - 5 * 60 * 1000
+    ) {
+      // Don't reply more than 3 times 5 minutes
+      this.logger.info("Ignoring reply because of rate limit");
+      return;
+    }
     const postText = postToPrompt(post);
     // Get last comments before this notifications
     const commentsIndex =
@@ -106,8 +117,7 @@ class Bot {
       return;
     }
     prompts.push(`@${accountId}, `);
-    this.state.accountReplies[accountId] =
-      this.state.accountReplies[accountId] || [];
+
     const stateReply = {
       time: new Date().getTime(),
       item,
@@ -116,7 +126,7 @@ class Bot {
       prompts,
       postAccountId: post?.accountId,
     };
-    this.state.accountReplies[accountId].push(stateReply);
+    lastReplies.push(stateReply);
     this.state.replyHistory.push(stateReply);
     const reply = await this.openai.reply(prompts);
     stateReply.reply = reply;
