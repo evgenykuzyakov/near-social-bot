@@ -185,7 +185,7 @@ class Bot {
         if (comment) {
           this.logger.info("mention in a comment", { comment });
           postItem = comment.data?.item;
-          post = await this.social.getPost(comment.item);
+          post = await this.social.getPost(postItem);
         } else {
           this.logger.info("unknown mention", { item });
           return;
@@ -213,6 +213,7 @@ class Bot {
       if (!notification) {
         return;
       }
+      this.state.notifications.push(notification);
       await this.processNotification(notification);
     }
   }
@@ -226,7 +227,8 @@ class Bot {
     // this.logger.info("test", {
     //   notification: this.state.todoNotifications[0],
     // });
-    // await this.processNotification(this.state.todoNotifications[0]);
+    // this.state.notifications.map((n, i) => console.log(i, JSON.stringify(n)));
+    // await this.processNotification(this.state.notifications.slice(-1)[0]);
   }
 }
 
