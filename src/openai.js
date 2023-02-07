@@ -19,7 +19,7 @@ class OpenAI {
         .map((prompt) => prompt.replace(process.env.STOP_SEQ, " "))
         .join(`\n${process.env.STOP_SEQ}`),
       stop: process.env.STOP_SEQ,
-      max_tokens: 512,
+      max_tokens: parseInt(process.env.MAX_TOKENS) || 512,
       temperature: 0.9,
       n: 1,
       presence_penalty: 0.6,
