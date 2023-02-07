@@ -128,13 +128,13 @@ class Bot {
     };
     lastReplies.push(stateReply);
     this.state.replyHistory.push(stateReply);
-    const reply = await this.openai.reply(prompts);
+    let reply = await this.openai.reply(prompts);
     stateReply.reply = reply;
     this.logger.info("reply", { reply });
     if (!reply) {
       return;
     }
-    reply.replaceAll("\n", "  \n");
+    reply = reply.replaceAll("\n", "  \n");
     await this.social.comment(
       item,
       `@${accountId}, ${reply}`,
