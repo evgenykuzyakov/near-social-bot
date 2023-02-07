@@ -1,11 +1,12 @@
 {
   "name": "near-social-bot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "index.js",
   "license": "UNLICENSED",
   "dependencies": {
     "axios": "^0.26.1",
     "big.js": "^6.2.1",
+    "gpt-3-encoder": "^1.1.4",
     "openai": "^3.1.0",
     "winston": "^3.8.2"
   },

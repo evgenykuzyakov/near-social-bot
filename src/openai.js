@@ -1,4 +1,5 @@
 const { Configuration, OpenAIApi } = require("openai");
+const { encode, decode } = require("gpt-3-encoder");
 
 class OpenAI {
   constructor(logger) {
@@ -10,9 +11,37 @@ class OpenAI {
     this.openai = new OpenAIApi(configuration);
   }
 
+  limitPromptsTokens(prompts, maxPerPrompt, maxTokens) {
+    let remainingTokens = maxTokens;
+    return [
+      ...prompts
+        .slice(0)
+        .reverse()
+        .map((prompt) => {
+          try {
+            const tokens = encode(prompt);
+            maxPerPrompt = Math.min(maxPerPrompt, remainingTokens);
+            if (tokens.length > maxPerPrompt) {
+              prompt = decode(tokens.slice(0, maxPerPrompt));
+            }
+            remainingTokens -= Math.min(tokens.length, remainingTokens);
+          } catch (e) {
+            this.logger.error("Error truncating prompt", { prompt, e });
+            prompt = "";
+          }
+          return prompt;
+        })
+        .filter(Boolean)
+        .reverse(),
+    ];
+  }
+
   async reply(prompts) {
     prompts = Array.isArray(prompts) ? prompts : [prompts];
     prompts.unshift(process.env.AI_COMMAND);
+    const maxPromptTokens = parseInt(process.env.MAX_PROMPT_TOKENS) || 512;
+    const maxPerPrompt = parseInt(process.env.MAX_TOKENS_PER_PROMPT) || 256;
+    prompts = this.limitPromptsTokens(prompts, maxPerPrompt, maxPromptTokens);
     const request = {
       model: "text-davinci-003",
       prompt: prompts
