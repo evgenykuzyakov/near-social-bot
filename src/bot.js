@@ -17,34 +17,41 @@ class Bot {
     this.state = state;
   }
 
+  async daylyPost(date) {
+    date = date || new Date();
+    // Creating a new post
+    const post = {
+      time: date.getTime(),
+      status: Status.Preparing,
+    };
+    this.state.postHistory.push(post);
+    const dateText = date.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+    });
+    post.prompt =
+      process.env.DAILY_PROMPT?.replaceAll("${dateText}", dateText) ||
+      `Tell me what important events happened on ${dateText}.`;
+    this.logger.info(`Generating text for daily prompt`, {
+      prompt: post.prompt,
+      date,
+    });
+    post.openaiText = await this.openai.reply(post.prompt);
+    post.text = `### ${dateText}\n\n${post.openaiText}`;
+    post.status = Status.Posting;
+    this.logger.info(`Posting`, {
+      post,
+    });
+    await this.social.post(post.text);
+    post.status = Status.OK;
+  }
+
   async maybePost() {
     const lastPost =
       this.state.postHistory?.[this.state.postHistory.length - 1];
     const date = new Date();
     if (!lastPost || new Date(lastPost.time).getDay() !== date.getDay()) {
-      // Creating a new post
-      const post = {
-        time: date.getTime(),
-        status: Status.Preparing,
-      };
-      this.state.postHistory.push(post);
-      const dateText = date.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-      });
-      post.prompt = `Tell me what important events happened on ${dateText}.`;
-      this.logger.info(`Generating text for daily prompt`, {
-        prompt: post.prompt,
-        date,
-      });
-      post.openaiText = await this.openai.reply(post.prompt);
-      post.text = `### ${dateText}\n\n${post.openaiText}`;
-      post.status = Status.Posting;
-      this.logger.info(`Posting`, {
-        post,
-      });
-      await this.social.post(post.text);
-      post.status = Status.OK;
+      await this.daylyPost(date);
     }
   }
 
@@ -220,6 +227,7 @@ class Bot {
   }
 
   async run() {
+    // await this.daylyPost();
     await this.maybePost();
     await this.fetchNotifications();
     await this.processNotifications();
