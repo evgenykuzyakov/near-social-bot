@@ -134,10 +134,11 @@ class Bot {
     if (!reply) {
       return;
     }
+    reply.replaceAll("\n", "  \n");
     await this.social.comment(
       item,
       `@${accountId}, ${reply}`,
-      [accountId],
+      [],
       post?.accountId
     );
   }

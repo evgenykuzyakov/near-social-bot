@@ -35,7 +35,12 @@ class Social {
   }
 
   async post(text) {
-    return this.set({
+    const notifications = this.extractMentionNotifications(text, {
+      type: "social",
+      path: `${this.near.accountId}/post/main`,
+    });
+
+    const data = {
       post: {
         main: JSON.stringify({ type: "md", text }),
       },
@@ -47,24 +52,28 @@ class Social {
           },
         }),
       },
-    });
-  }
-
-  async comment(item, text, mentions, notifyAccountId) {
-    const commentItem = {
-      type: "social",
-      path: `${this.near.accountId}/post/comment`,
     };
 
-    const notifications = mentions.map((accountId) => ({
-      key: accountId,
-      value: {
-        type: "mention",
-        item: commentItem,
-      },
-    }));
+    if (notifications.length) {
+      data.index.notify = JSON.stringify(
+        notifications.length > 1 ? notifications : notifications[0]
+      );
+    }
 
-    if (notifyAccountId) {
+    return this.set(data);
+  }
+
+  async comment(item, text, extraMentions, notifyAccountId) {
+    const notifications = this.extractMentionNotifications(
+      text,
+      {
+        type: "social",
+        path: `${this.near.accountId}/post/comment`,
+      },
+      extraMentions
+    );
+
+    if (notifyAccountId && notifyAccountId !== this.near.accountId) {
       notifications.push({
         key: notifyAccountId,
         value: {
@@ -249,6 +258,38 @@ class Social {
       this.logger.debug("getCommentFromIndex", { error });
       return null;
     }
+  }
+
+  extractMentions(text, extraMentions) {
+    const mentionRegex =
+      /@((?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+)/gi;
+    mentionRegex.lastIndex = 0;
+    const accountIds = new Set(extraMentions || []);
+    for (const match of text.matchAll(mentionRegex)) {
+      if (
+        !/[\w`]/.test(match.input.charAt(match.index - 1)) &&
+        !/[/\w`]/.test(match.input.charAt(match.index + match[0].length)) &&
+        match[1].length >= 2 &&
+        match[1].length <= 64
+      ) {
+        accountIds.add(match[1].toLowerCase());
+      }
+    }
+    return [...accountIds];
+  }
+
+  extractMentionNotifications(text, item, extraMentions) {
+    const mentions = this.extractMentions(text, extraMentions);
+
+    return mentions
+      .filter((accountId) => accountId !== this.near.accountId)
+      .map((accountId) => ({
+        key: accountId,
+        value: {
+          type: "mention",
+          item,
+        },
+      }));
   }
 }
 
