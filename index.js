@@ -8,7 +8,7 @@ const { initNear } = require("./src/near");
 const Social = require("./src/social");
 const Bot = require("./src/bot");
 
-const StateFilename = "res/state.json";
+const StateFilename = "res/" + (process.env.STATE_FILENAME || "state.json");
 const DefaultState = {
   accountReplies: {},
   postHistory: [],
@@ -27,10 +27,12 @@ const DefaultState = {
     ),
     transports: [
       new winston.transports.File({
-        filename: "logs/error.log",
+        filename: `logs/${process.env.LOG_PREFIX}error.log`,
         level: "error",
       }),
-      new winston.transports.File({ filename: "logs/combined.log" }),
+      new winston.transports.File({
+        filename: `logs/${process.env.LOG_PREFIX}combined.log`,
+      }),
     ],
   });
 
