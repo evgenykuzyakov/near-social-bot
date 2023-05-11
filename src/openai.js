@@ -44,9 +44,9 @@ class OpenAI {
     prompts = this.limitPromptsTokens(prompts, maxPerPrompt, maxPromptTokens);
     const request = {
       model: process.env.MODEL ?? "gpt-3.5-turbo",
-      messages: prompts.map((prompt) => ({
-        role: "user",
-        content: prompt.replace(process.env.STOP_SEQ, " "),
+      messages: prompts.map((prompt, i) => ({
+        role: i ? "user" : "system",
+        content: prompt,
       })),
       max_tokens: parseInt(process.env.MAX_TOKENS) || 512,
       temperature: 0.9,

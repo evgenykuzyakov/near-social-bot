@@ -50,6 +50,13 @@ const DefaultState = {
   const state = Object.assign(DefaultState, loadJson(StateFilename, true));
   const bot = new Bot({ logger, near, social, openai, state });
 
+  // await social.post("Hello world!");
+  // const dailyPrompt = logger.info(`Daily prompt`, { prompt: dailyPrompt });
+  // console.log(
+  //   await openai.reply("Tell me what important events happened on April 20th")
+  // );
+  // return;
+
   try {
     await bot.run();
   } catch (error) {
@@ -57,10 +64,4 @@ const DefaultState = {
   } finally {
     saveJson(state, StateFilename);
   }
-
-  // await social.post("Hello world!");
-  // const dailyPrompt = logger.info(`Daily prompt`, { prompt: dailyPrompt });
-  // console.log(
-  //   await openai.reply("Tell me what important events happened on April 20th")
-  // );
 })();
