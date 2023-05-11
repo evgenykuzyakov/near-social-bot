@@ -13,4 +13,5 @@ MAX_TOKENS = "1024"
 MAX_TOKENS_PER_PROMPT = "256"
 MAX_PROMPT_TOKENS = "512"
 DAILY_PROMPT = "Tell me what important events happened on ${dateText}."
+MODEL = "gpt-3.5-turbo"
 ```

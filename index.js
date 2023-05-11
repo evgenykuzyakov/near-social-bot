@@ -60,5 +60,7 @@ const DefaultState = {
 
   // await social.post("Hello world!");
   // const dailyPrompt = logger.info(`Daily prompt`, { prompt: dailyPrompt });
-  // console.log(await openai.reply(dailyPrompt));
+  // console.log(
+  //   await openai.reply("Tell me what important events happened on April 20th")
+  // );
 })();

@@ -43,21 +43,21 @@ class OpenAI {
     const maxPerPrompt = parseInt(process.env.MAX_TOKENS_PER_PROMPT) || 256;
     prompts = this.limitPromptsTokens(prompts, maxPerPrompt, maxPromptTokens);
     const request = {
-      model: "text-davinci-003",
-      prompt: prompts
-        .map((prompt) => prompt.replace(process.env.STOP_SEQ, " "))
-        .join(`\n${process.env.STOP_SEQ}`),
-      stop: process.env.STOP_SEQ,
+      model: process.env.MODEL ?? "gpt-3.5-turbo",
+      messages: prompts.map((prompt) => ({
+        role: "user",
+        content: prompt.replace(process.env.STOP_SEQ, " "),
+      })),
       max_tokens: parseInt(process.env.MAX_TOKENS) || 512,
       temperature: 0.9,
       n: 1,
       presence_penalty: 0.6,
     };
     this.logger.info("request", { request });
-    const response = await this.openai.createCompletion(request);
+    const response = await this.openai.createChatCompletion(request);
     this.logger.info("response", { data: response.data });
 
-    return response.data.choices[0].text.trim();
+    return response.data.choices[0].message.content.trim();
   }
 }
 
